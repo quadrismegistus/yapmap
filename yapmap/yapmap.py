@@ -1,5 +1,10 @@
+import os,tempfile,multiprocessing as mp
+import numpy as np,pandas as pd
+from tqdm import tqdm
 
-
+# default num proc is?
+num_cpu = mp.cpu_count()
+DEFAULT_NUM_PROC = (num_cpu-1) if num_cpu>2 else num_cpu
 
 def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_threads=False, progress=True, desc=None, **y):
 	"""
@@ -8,10 +13,6 @@ def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_thr
 	If use_threads, use ThreadPool instead of Pool.
 	Results in any order.
 	"""
-	
-	# imports
-	import multiprocessing as mp
-	from tqdm import tqdm
 	
 	# check num proc
 	num_cpu = mp.cpu_count()
@@ -67,8 +68,7 @@ def pmap_df(df, func, num_proc=DEFAULT_NUM_PROC):
 
 
 def pmap_groups(func,df_grouped,use_cache=True,num_proc=DEFAULT_NUM_PROC,**attrs):
-	import os,tempfile,pandas as pd
-	from tqdm import tqdm
+
 
 	# get index/groupby col name(s)
 	group_key=df_grouped.grouper.names
@@ -105,7 +105,6 @@ def pmap_groups(func,df_grouped,use_cache=True,num_proc=DEFAULT_NUM_PROC,**attrs
 
 
 def _do_pmap_group(obj,*x,**y):
-	import pandas as pd
 	# unpack
 	func,group_df,group_key,group_name = obj
 	# load from cache?
