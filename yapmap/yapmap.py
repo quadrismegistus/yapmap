@@ -3,8 +3,7 @@ import numpy as np,pandas as pd
 from tqdm import tqdm
 
 # default num proc is?
-num_cpu = mp.cpu_count()
-DEFAULT_NUM_PROC = (num_cpu-1) if num_cpu>2 else num_cpu
+DEFAULT_NUM_PROC = mp.cpu_count()
 
 def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_threads=False, progress=True, desc=None, **y):
 	"""
