@@ -66,7 +66,7 @@ def pmap_df(df, func, num_proc=DEFAULT_NUM_PROC):
 	return df
 
 
-def pmap_groups(func,df_grouped,use_cache=True,num_proc=DEFAULT_NUM_PROC,**attrs):
+def pmap_groups(func,df_grouped,use_cache=False,num_proc=DEFAULT_NUM_PROC,**attrs):
 
 
 	# get index/groupby col name(s)
