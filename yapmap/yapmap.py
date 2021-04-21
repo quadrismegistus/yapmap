@@ -3,7 +3,11 @@ import numpy as np,pandas as pd
 from tqdm import tqdm
 
 # default num proc is?
-DEFAULT_NUM_PROC = mp.cpu_count()
+DEFAULT_NUM_PROC = mp.cpu_count() - 1
+
+# boost to max if just 2? (hack for google colab/cloud context)
+if mp.cpu_count()==2: DEFAULT_NUM_PROC=2
+
 
 def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_threads=False, progress=True, desc=None, **y):
 	"""
