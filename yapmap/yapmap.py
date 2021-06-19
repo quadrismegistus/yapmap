@@ -1,6 +1,7 @@
 import os,tempfile,multiprocessing as mp
 import numpy as np,pandas as pd
 from tqdm import tqdm
+import random
 
 # default num proc is?
 DEFAULT_NUM_PROC = mp.cpu_count() - 1
@@ -71,7 +72,7 @@ def pmap_df(df, func, num_proc=DEFAULT_NUM_PROC):
     return df
 
 
-def pmap_groups(func,df_grouped,use_cache=False,num_proc=DEFAULT_NUM_PROC,randomize=True,**attrs):
+def pmap_groups(func,df_grouped,use_cache=False,num_proc=DEFAULT_NUM_PROC,shuffle=True,**attrs):
 
 
     # get index/groupby col name(s)
@@ -86,7 +87,6 @@ def pmap_groups(func,df_grouped,use_cache=False,num_proc=DEFAULT_NUM_PROC,random
     else:
         objs=[]
         groups=list(df_grouped)
-        if randomize: random.shuffle(groups)
         for i,(group_name,group_df) in enumerate(tqdm(groups,desc='Preparing input')):
             # print([i,group_name,tmp_path,group_df])
             if use_cache:
@@ -98,6 +98,7 @@ def pmap_groups(func,df_grouped,use_cache=False,num_proc=DEFAULT_NUM_PROC,random
     # desc?
     if not attrs.get('desc'): attrs['desc']=f'Mapping {func.__name__}'
 
+    if shuffle: random.shuffle(objs)
 
     return pd.concat(
         pmap(
