@@ -10,7 +10,7 @@ def read(filename):
 
 setup(
     name="yapmap",
-    version="0.0.6",
+    version="0.0.7",
     url="https://github.com/quadrismegistus/yapmap",
     license='MIT',
 
