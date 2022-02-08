@@ -3,6 +3,8 @@ import numpy as np,pandas as pd
 from tqdm import tqdm
 import random
 
+CONTEXT='fork'
+
 # default num proc is?
 DEFAULT_NUM_PROC = mp.cpu_count() - 1
 
@@ -10,7 +12,7 @@ DEFAULT_NUM_PROC = mp.cpu_count() - 1
 if mp.cpu_count()==2: DEFAULT_NUM_PROC=2
 
 
-def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_threads=False, progress=True, progress_pos=0,desc=None, **y):
+def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_threads=False, progress=True, progress_pos=0,desc=None, context=CONTEXT, **y):
     """
     Yields results of func(obj) for each obj in objs
     Uses multiprocessing.Pool(num_proc) for parallelism.
@@ -32,17 +34,13 @@ def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_thr
         objects = [(func,obj,args,kwargs) for obj in objs]
 
         # create pool
-        pool=mp.Pool(num_proc) if not use_threads else mp.pool.ThreadPool(num_proc)
+        #pool=mp.Pool(num_proc) if not use_threads else mp.pool.ThreadPool(num_proc)
+        with mp.get_context(context).Pool(num_proc) as pool:
+            # yield iter
+            iterr = pool.imap(_pmap_do, objects)
 
-        # yield iter
-        iterr = pool.imap(_pmap_do, objects)
-
-        for res in tqdm(iterr,total=len(objects),desc=desc,position=progress_pos) if progress else iterr:
-            yield res
-
-        # Close the pool?
-        pool.close()
-        pool.join()
+            for res in tqdm(iterr,total=len(objects),desc=desc,position=progress_pos) if progress else iterr:
+                yield res
     else:
         # yield
         for obj in (tqdm(objs,desc=desc,position=progress_pos) if progress else objs):
