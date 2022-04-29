@@ -1,15 +1,25 @@
-import os,tempfile,multiprocessing as mp
+import os,tempfile,multiprocessing as mp,sys,random
 import numpy as np,pandas as pd
-from tqdm import tqdm
-import random
 
 CONTEXT='fork'
-
-# default num proc is?
 DEFAULT_NUM_PROC = mp.cpu_count() - 1
-
 # boost to max if just 2? (hack for google colab/cloud context)
 if mp.cpu_count()==2: DEFAULT_NUM_PROC=2
+
+
+def in_jupyter(): return sys.argv[-1].endswith('json')
+
+def get_tqdm(iterable,*args,**kwargs):
+    l=iterable
+    if type(l)==list and len(l)==1: return l
+    if in_jupyter():
+        from tqdm.notebook import tqdm as tqdmx
+    else:
+        from tqdm import tqdm as tqdmx
+    return tqdmx(l,*args,**kwargs)
+
+
+tqdm = get_tqdm
 
 
 def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_threads=False, progress=True, progress_pos=0,desc=None, context=CONTEXT, **y):
@@ -39,7 +49,7 @@ def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_thr
             # yield iter
             iterr = pool.imap(_pmap_do, objects)
 
-            for res in tqdm(iterr,total=len(objects),desc=desc,position=progress_pos) if progress else iterr:
+            for res in get_tqdm(iterr,total=len(objects),desc=desc,position=progress_pos) if progress else iterr:
                 yield res
     else:
         # yield
