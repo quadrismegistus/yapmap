@@ -2,9 +2,12 @@ import os,tempfile,multiprocessing as mp,sys,random
 import numpy as np,pandas as pd
 
 CONTEXT='fork'
-DEFAULT_NUM_PROC = mp.cpu_count() - 1
-# boost to max if just 2? (hack for google colab/cloud context)
-if mp.cpu_count()==2: DEFAULT_NUM_PROC=2
+# default num proc is?
+mp_cpu_count=mp.cpu_count()
+if mp_cpu_count==1: DEFAULT_NUM_PROC=1
+elif mp_cpu_count==2: DEFAULT_NUM_PROC=2
+elif mp_cpu_count==3: DEFAULT_NUM_PROC=2
+else: DEFAULT_NUM_PROC = mp_cpu_count - 2
 
 
 def in_jupyter(): return sys.argv[-1].endswith('json')
@@ -17,6 +20,7 @@ def get_tqdm(iterable,*args,**kwargs):
     else:
         from tqdm import tqdm as tqdmx
     return tqdmx(l,*args,**kwargs)
+
 
 
 tqdm = get_tqdm
