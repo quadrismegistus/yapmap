@@ -1,4 +1,4 @@
-import os,tempfile,multiprocessing as mp,sys,random
+import os,tempfile,multiprocess as mp,sys,random
 import numpy as np,pandas as pd
 
 CONTEXT='fork'
@@ -16,7 +16,7 @@ def get_tqdm(iterable,*args,**kwargs):
     l=iterable
     if type(l)==list and len(l)==1: return l
     if in_jupyter():
-        from tqdm.notebook import tqdm as tqdmx
+        from tqdm import tqdm as tqdmx
     else:
         from tqdm import tqdm as tqdmx
     return tqdmx(l,*args,**kwargs)
@@ -26,13 +26,28 @@ def get_tqdm(iterable,*args,**kwargs):
 tqdm = get_tqdm
 
 
-def pmap_iter(func, objs, args=[], kwargs={}, num_proc=DEFAULT_NUM_PROC, use_threads=False, progress=True, progress_pos=0,desc=None, context=CONTEXT, **y):
+def pmap_iter(
+        func, 
+        objs, 
+        args=[], 
+        kwargs={}, 
+        lim=None,
+        num_proc=DEFAULT_NUM_PROC, 
+        use_threads=False, 
+        progress=True, 
+        progress_pos=0,
+        desc=None,
+        context=CONTEXT, 
+        **y):
     """
     Yields results of func(obj) for each obj in objs
     Uses multiprocessing.Pool(num_proc) for parallelism.
     If use_threads, use ThreadPool instead of Pool.
     Results in any order.
     """
+
+    # lim?
+    if lim: objs = objs[:lim]
 
     # check num proc
     num_cpu = mp.cpu_count()
@@ -71,7 +86,8 @@ def pmap(*x,**y):
     # return as list
     return list(pmap_iter(*x,**y))
 
-
+def pmap_run(*x,**y):
+    for obj in pmap_iter(*x,**y): pass
 
 
 """
